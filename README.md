@@ -14,6 +14,8 @@ Python. Projeto PatchPES6.
   do emblema de competição a editar.
 - Tela de placares e HUD: exportação/importação dos atlas PNG, prévia
   convertida e atualização conjunta das duas cópias dos números.
+- Jogadores e elencos: nomes, nomes na camisa, inscrições, ordem, números
+  e transferências entre elencos, com bases 6667/6668 independentes.
 - Projetos salvos com vínculo às fontes; exportação de ISO ou arquivos
   modificados para uma instalação extraída.
 
@@ -77,6 +79,12 @@ competição ainda exige identificar o estado da competição e implementar
 a seleção no executável Xbox 360; o módulo Kitserver de PC não funciona
 diretamente nessa plataforma. Os layouts e posições do HUD não são editados
 nesta versão. Alterações de placar ainda precisam de validação em partida.
+
+O editor de jogadores preserva os atributos ainda não identificados; não
+edita habilidades, idade, aparência ou formação tática. A base ativa em
+partida precisa ser confirmada: IDs de 6667 e 6668 não são intercambiáveis.
+Os nomes de equipes mostrados em 6668 são referências para conferir pelo
+elenco. Option files/saves do jogo podem influenciar o resultado observado.
 
 ## Testes e versionamento
 

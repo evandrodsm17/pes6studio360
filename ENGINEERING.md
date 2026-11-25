@@ -595,3 +595,66 @@ lifetime behavior. Only after those bindings are confirmed should the
 Studio expose competition mappings. No placeholder mapping is exported as
 if the original game could consume it. Automatic selection and layout
 editing remain unimplemented; no claim of runtime success is made.
+
+### Additional HUD loading observations (0.15)
+
+`pes6_scoreboard_probe.py` reproduces a source-bound instruction check:
+`li r3,2706` at RVA 0x468114 and `li r3,2703` at RVA 0x468184 precede
+relative `bl` calls at 0x468118 and 0x46818c to 0x827292e0. The second
+sequence contains one intervening `stw`, verified byte-for-byte. This is
+a candidate resource-loading path because CV entry 2703 contains named HUD
+layouts. It does not establish the callee's full ABI or execution in a match.
+Local evidence: `research/scoreboards/loader_calls.json`.
+
+Analysis through REA could not supply PowerPC decompilation in this Windows
+environment: the XEX reconstructed PE machine 0x01f2 was rejected, and an
+explicit diagnostic ELF wrapper of the code window was recognized as PPC
+but had no configured/supported deep-analysis provider. The wrapper is an
+analyst-generated container, not a game artifact or executable modification.
+The narrow Python instruction check does not depend on that wrapper.
+Competition-state identification, a selector hook and runtime validation
+remain outstanding. No speculative executable patch is generated.
+
+## Players and registrations (0.15)
+
+The editor accepts only original CV SHA-256
+`c3c3f2aa3bd1623b650c9f356b9da85b9878feec0aceb89ab250a9abb5eb24dc`.
+
+| CV entry | Player records | Squad records | Part 0 | Part 1 | Part 2 |
+| --- | ---: | ---: | --- | --- | --- |
+| 6667 | 4415 | 188 | 152 bytes/player | 32 BE16 IDs/squad | 32 byte numbers/squad |
+| 6668 | 4210 | 189 | 152 bytes/player | 32 BE16 IDs/squad | 32 byte numbers/squad |
+
+Player record bytes 0–45 store the UTF-8 display name, bytes 46–61 the
+shirt name, both zero-terminated. All bytes from 62 onward remain untouched.
+Record zero is reserved by the editor. Empty registrations preserve source
+IDs 0 or 65535; new empty registrations use 65535 and number 255. Number
+editing accepts 0–99 or the original undefined value 255. Duplicate player
+IDs within a squad are rejected; inscriptions across squads are permitted.
+No team ownership is inferred from a single registration.
+
+The two databases differ in roster contents, record counts and player IDs.
+They are independently selectable and independently serialized. For example,
+the same Chelsea squad slot 69 uses different IDs for Cech, Essien and
+Drogba. The later Spanish club alignment also differs between databases.
+Names from the executable table appear only as references in the 6668
+selector and must be checked against membership. No labels are guessed for
+6667; no team-to-kit mapping is derived from these squad indexes.
+
+Transfers prepare the source and destination together, preserve other
+registrations, and reject full destinations. All staging preflights checked
+AFS capacity before replacing active state. Repacking changes only selected
+name buffers, registration IDs and number bytes, plus compression metadata
+and checked AFS size fields. Parts 0/1/2 retain their lengths; part 3 and
+all other data are preserved. Formation data and player attribute bitfields
+are not edited. Runtime interpretation and any option-file precedence still
+need validation; aliases in entry 6666 are not rewritten speculatively.
+
+Optional schema-1 `player_database` contains the CV source hash, player
+changes keyed by database and ID, and complete changed squad arrays keyed
+by database and slot. It is validated before any project state is replaced.
+Output `player_changes.json` records exactly those changes and explicitly
+marks runtime validation pending. Both CV databases can be exported together
+with league names and scoreboard textures. The real HTTP workflow saves,
+restores, reloads and exports those combined changes; its local report is
+`research/player_editor/workflow.json`.

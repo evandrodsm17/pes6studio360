@@ -74,6 +74,37 @@ tamanho no índice e preserva os offsets dos outros arquivos.
 
 ## Uniformes e demais recursos
 
+### Jogadores e elencos (v0.15)
+
+1. Abra **Jogadores e elencos** e escolha a base. Comece examinando a 6668,
+   que contém o elenco de Chelsea com Ashley Cole, Boulahrouz e Drogba.
+   A seleção da base no editor não muda a base carregada pelo jogo.
+2. Busque um jogador pelo nome ou ID. Edite o nome no jogo e o nome na
+   camisa, depois clique em **Preparar jogador**. Limites: 45 e 15 bytes
+   UTF-8, respectivamente. Um caractere acentuado pode ocupar vários bytes.
+3. Escolha o elenco e confira a identidade pelos jogadores. Os nomes de
+   equipe exibidos são referências, não uma associação validada em partida.
+4. Para registrar alguém, selecione o jogador à esquerda e clique em
+   **Colocar** na posição desejada. **Remover** libera a posição; ↑ e ↓
+   mudam a ordem levando o número junto. Clique em **Preparar elenco**.
+5. Para transferir, prepare primeiro o elenco, informe a posição de origem
+   (1–32), escolha outro elenco e clique em **Transferir para a primeira
+   vaga**. Origem e destino são alterados juntos. Outras inscrições do
+   mesmo ID, como a seleção nacional, permanecem.
+6. Salve o projeto e gere IMG ou ISO. Os arquivos gerados podem incluir
+   alterações de jogadores, clubes, ligas e placares no mesmo patch.
+
+Cada elenco tem 32 posições; 255 no número significa não definido. O editor
+rejeita IDs fora da base, jogadores repetidos no mesmo elenco e destino
+sem vaga. As bases possuem IDs diferentes: as alterações não são copiadas
+automaticamente entre elas. Os registros existentes são editados sem
+aumentar a quantidade de jogadores.
+
+Atributos técnicos, físicos, aparência, posição e formação tática são
+preservados nesta etapa. A ordem das inscrições não é um editor de tática.
+Os testes verificam os arquivos gerados; confira a base realmente usada
+em partida e a influência do option file/save antes de atualizar em massa.
+
 ### Placares e HUD (v0.14)
 
 1. Abra **Placares e HUD** no menu principal.
