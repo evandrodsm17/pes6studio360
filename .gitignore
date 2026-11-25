@@ -1,0 +1,16 @@
+# Source-only repository. Game files, generated patches and research stay local.
+*
+!/*.py
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/ENGINEERING.md
+!/PES6STUDIO_LEIA-ME.md
+!/PES6Studio.cmd
+!/GitStudio.cmd
+!/requirements.txt
+
+# Historical entry points remain on disk; current UI uses v10 through the launcher.
+/pes6_studio.py
+/pes6_studio_v0[2-9].py
+
