@@ -29,8 +29,16 @@ def analyze(source):
             raise ValueError('Unexpected intervening stw instruction')
         requests.append({'resource_candidate': resource, 'load_rva': hex(load),
                          'call_rva': hex(call), 'callee': hex(relative_call(image, call, base))})
+    tokens=[]
+    for at, call, expected in ((0x467cc0,0x467ccc,(0x3c600200,0x38800001,0x606300f9)),
+                               (0x468190,0x468198,(0x3c600200,0x606300f9))):
+        if struct.unpack_from('>'+str(len(expected))+'I',image,at)!=expected:
+            raise ValueError('Expected source-bound lis/ori token sequence')
+        tokens.append({'rva':hex(at),'value':'0x020000f9','low16':249,
+                       'callee':hex(relative_call(image,call,base))})
     return {'source_sha256': SOURCE_SHA256, 'image_sha256': hashlib.sha256(image).hexdigest(),
             'requests': requests, 'observation': 'Constants 2703 and 2706 passed in r3 to the same relative-call target.',
+            'packed_tokens':tokens,
             'interpretation': 'Candidate HUD resource-loading path; cv entry 2703 contains scoretime/game2d/replay layouts.',
             'competition_state_address': None, 'automatic_selection_implemented': False,
             'limitations': ['Static instruction observation only; argument ABI and runtime execution not traced.',

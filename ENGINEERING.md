@@ -658,3 +658,33 @@ marks runtime validation pending. Both CV databases can be exported together
 with league names and scoreboard textures. The real HTTP workflow saves,
 restores, reloads and exports those combined changes; its local report is
 `research/player_editor/workflow.json`.
+
+## Isolated database identification (0.16)
+
+`PlayerEditor.probe()` source-checks the original Lampard name and Chelsea
+slot membership in both databases, then returns independent entry replacements
+for record 144 with `Lampard DB6667` / `Lampard DB6668` and matching shirt
+markers. It passes explicit temporary player edits and an empty squad map
+to the builder, so active player, squad and all other project edits are
+neither included nor modified. `/players/probe` exports to a fresh directory,
+records `database_test.json`, and supports the normal IMG/ISO output modes.
+No automatic runtime conclusion is recorded from creating the test.
+
+The HTTP verification staged another name first, exported the probe, checked
+that pending state remained identical, recovered both distinct markers from
+the generated CV, and compared every AFS entry. Only 6667/6668 changed; offsets
+and unrelated entries were preserved. Evidence is local at
+`research/player_editor/probe_workflow.json`. The eight player/probe tests
+passed, including the pending-project isolation test and real-source checks.
+
+### Packed HUD tokens
+
+Additional source-bound sequences in `pes6_scoreboard_probe.py` construct
+`0x020000f9` in r3, whose low 16 bits are 249, matching the identified English
+HUD atlas entry. At RVA 0x467cc0 the instruction order is `lis r3,0x200`,
+`li r4,1`, `ori r3,r3,0xf9`, then a relative call at 0x467ccc to 0x82729548.
+At 0x468190 `lis`/`ori` are adjacent, followed by a call at 0x468198 to
+0x82729598. The exact words are checked before reporting the observations.
+These are candidate resource tokens, not proven archive identifiers or
+competition IDs. The two callees' load/unload roles have not been traced.
+No competition-dependent routing or executable modification is implemented.

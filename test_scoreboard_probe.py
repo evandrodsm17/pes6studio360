@@ -18,3 +18,5 @@ class ScoreboardProbeTests(unittest.TestCase):
         self.assertEqual({r['callee'] for r in data['requests']}, {'0x827292e0'})
         self.assertIsNone(data['competition_state_address'])
         self.assertFalse(data['automatic_selection_implemented'])
+        self.assertEqual([r['value'] for r in data['packed_tokens']],['0x020000f9']*2)
+        self.assertEqual({r['callee'] for r in data['packed_tokens']},{'0x82729548','0x82729598'})

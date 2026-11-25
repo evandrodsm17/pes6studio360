@@ -105,6 +105,24 @@ preservados nesta etapa. A ordem das inscrições não é um editor de tática.
 Os testes verificam os arquivos gerados; confira a base realmente usada
 em partida e a influência do option file/save antes de atualizar em massa.
 
+### Identificar a base carregada (v0.16)
+
+Na tela **Jogadores e elencos**, escolha o modo de saída IMG ou ISO e clique
+em **Gerar teste isolado da base**. O Studio cria uma saída independente com
+Lampard renomeado para `Lampard DB6667` em uma base e `Lampard DB6668` na
+outra. O nome na camisa também recebe o marcador correspondente.
+
+Use essa saída numa cópia de teste do jogo e confira Lampard no elenco do
+Chelsea/London FC e na Inglaterra. Registre o modo e a tela onde o marcador
+apareceu: isso identifica a origem daquele nome naquele contexto, sem provar
+que todos os modos utilizam a mesma base. Se nenhum aparecer, confira qual
+cópia foi aberta e a influência do option file/save. Preserve seus saves.
+
+Esse botão não altera inscrições, atributos ou seu projeto atual, não inclui
+as alterações pendentes e não salva os marcadores no projeto. A saída contém
+`database_test.json` com os marcadores e instruções. Para voltar ao patch
+normal, use **Gerar patch**, sem reutilizar os arquivos do teste isolado.
+
 ### Placares e HUD (v0.14)
 
 1. Abra **Placares e HUD** no menu principal.

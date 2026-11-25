@@ -71,5 +71,20 @@ class RealPlayerTests(unittest.TestCase):
         bad = e.project(); bad['source_sha256'] = '0'*64
         with self.assertRaises(ValueError): e.validated_project({'player_database': bad})
 
+    def test_isolated_database_probe_preserves_pending_project(self):
+        e = self.editor; e.stage_player(6668, 144, 'My pending name', 'PENDING')
+        rows = e.original_squad(6668,69); rows[0],rows[1] = rows[1],rows[0]
+        e.stage_squad(6668,69,rows); before = e.project()
+        changes,report = e.probe()
+        self.assertEqual(e.project(),before)
+        self.assertEqual(set(changes),{6667,6668})
+        for entry in changes:
+            data=unwrap(changes[entry].data);original=e.payloads[entry]
+            offset=parts(original)[0][0]+144*152
+            self.assertEqual(data[offset:offset+46],name_bytes(f'Lampard DB{entry}',46))
+            self.assertEqual(data[:offset],original[:offset])
+            self.assertEqual(data[offset+62:],original[offset+62:])
+        self.assertTrue(report['isolated_test']);self.assertFalse(report['runtime_verified'])
+
 
 if __name__ == '__main__': unittest.main()

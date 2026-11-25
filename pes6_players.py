@@ -132,6 +132,19 @@ class PlayerEditor:
                 'players': [{'database': e, 'player_id': p, **v} for (e, p), v in sorted(self.edits.items())],
                 'squads': [{'database': e, 'slot': s, 'rows': rows} for (e, s), rows in sorted(self.squads.items())]}
 
+    def probe(self):
+        """Return an isolated diagnostic patch without touching pending edits."""
+        changes = {}; markers = []
+        for entry in DATABASES:
+            if self.rows[entry][144]['name'] != 'Lampard' or not any(r['player_id'] == 144 for r in self.original_squad(entry, 69)):
+                raise ValueError('Controle Lampard/Chelsea divergente')
+            values = {'name': f'Lampard DB{entry}', 'shirt_name': f'DB{entry}'}
+            changes[entry, 144] = self.validate_player(entry, 144, **values)
+            markers.append({'database': entry, 'player_id': 144, **values})
+        return self.build_entries(changes, {}), {'source_sha256': CV_SHA256, 'markers': markers,
+            'isolated_test': True, 'runtime_verified': False,
+            'instructions': 'Use os arquivos deste teste numa cópia do jogo. Confira Lampard no Chelsea/London FC e na Inglaterra em cada modo. DB6667 ou DB6668 identifica a origem do nome nessa tela; o resultado não comprova todos os modos. Se nenhum marcador aparecer, confira os arquivos usados e a influência do option file/save. Não apague seus saves.'}
+
     def validated_project(self, data):
         d = data.get('player_database', {}); edits = {}; squads = {}
         if not isinstance(d, dict): raise ValueError('Base de jogadores inválida')
