@@ -16,6 +16,8 @@ Python. Projeto PatchPES6.
   convertida e atualização conjunta das duas cópias dos números.
 - Jogadores e elencos: nomes, nomes na camisa, inscrições, ordem, números
   e transferências entre elencos, com bases 6667/6668 independentes.
+- Edição de 26 valores de habilidades, preservando os bits vizinhos;
+  os rótulos comparados ao formato PC ainda exigem conferência no Xbox 360.
 - Projetos salvos com vínculo às fontes; exportação de ISO ou arquivos
   modificados para uma instalação extraída.
 
@@ -81,7 +83,7 @@ diretamente nessa plataforma. Os layouts e posições do HUD não são editados
 nesta versão. Alterações de placar ainda precisam de validação em partida.
 
 O editor de jogadores preserva os atributos ainda não identificados; não
-edita habilidades, idade, aparência ou formação tática. A base ativa em
+edita idade, aparência ou formação tática. A base ativa em
 partida precisa ser confirmada: IDs de 6667 e 6668 não são intercambiáveis.
 Os nomes de equipes mostrados em 6668 são referências para conferir pelo
 elenco. Option files/saves do jogo podem influenciar o resultado observado.

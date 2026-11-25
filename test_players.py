@@ -22,7 +22,7 @@ class RealPlayerTests(unittest.TestCase):
         cls.editor = PlayerEditor(ROOT/'cv.img')
 
     def setUp(self):
-        self.editor.edits = {}; self.editor.squads = {}
+        self.editor.edits = {}; self.editor.squads = {}; self.editor.abilities={}
 
     def test_name_changes_only_selected_fields_in_one_database(self):
         e = self.editor; e.stage_player(6668, 144, 'Frank Lampard', 'LAMPARD')
@@ -66,8 +66,9 @@ class RealPlayerTests(unittest.TestCase):
         self.assertFalse(e.squads)
         e.stage_player(6667, 144, 'Frank Lampard', 'LAMPARD')
         e.stage_player(6668, 144, 'Lampard Test', 'LAMPARD')
-        edits, squads = e.validated_project({'player_database': e.project()})
+        edits, squads, abilities = e.validated_project({'player_database': e.project()})
         self.assertEqual(edits, e.edits); self.assertEqual(squads, e.squads)
+        self.assertEqual(abilities,{})
         bad = e.project(); bad['source_sha256'] = '0'*64
         with self.assertRaises(ValueError): e.validated_project({'player_database': bad})
 
@@ -75,6 +76,7 @@ class RealPlayerTests(unittest.TestCase):
         e = self.editor; e.stage_player(6668, 144, 'My pending name', 'PENDING')
         rows = e.original_squad(6668,69); rows[0],rows[1] = rows[1],rows[0]
         e.stage_squad(6668,69,rows); before = e.project()
+        values=e.original_abilities(6668,144);values[0]=90;e.stage_abilities(6668,144,values);before=e.project()
         changes,report = e.probe()
         self.assertEqual(e.project(),before)
         self.assertEqual(set(changes),{6667,6668})
@@ -85,6 +87,22 @@ class RealPlayerTests(unittest.TestCase):
             self.assertEqual(data[:offset],original[:offset])
             self.assertEqual(data[offset+62:],original[offset+62:])
         self.assertTrue(report['isolated_test']);self.assertFalse(report['runtime_verified'])
+
+    def test_abilities_preserve_neighbor_bits_and_roundtrip(self):
+        e=self.editor;values=e.original_abilities(6668,144)
+        self.assertEqual((values[0],values[3],values[25]),(84,97,50))
+        values[0]=99;values[3]=80;values[25]=55;e.stage_abilities(6668,144,values)
+        changes=e.build_entries();self.assertEqual(set(changes),{6668})
+        original=e.payloads[6668];new=unwrap(changes[6668].data);offset=parts(original)[0][0]+144*152+70
+        self.assertEqual(new[:offset],original[:offset]);self.assertEqual(new[offset+26:],original[offset+26:])
+        for i,value in enumerate(values):
+            self.assertEqual(new[offset+i]>>1,value);self.assertEqual(new[offset+i]&1,original[offset+i]&1)
+        _,_,restored=e.validated_project({'player_database':e.project()});self.assertEqual(restored,e.abilities)
+        before=e.project()
+        for bad in ([1]*25,[100]*26,[True]*26,[-1]*26):
+            with self.assertRaises(ValueError):e.stage_abilities(6668,144,bad)
+        self.assertEqual(e.project(),before)
+        e.stage_abilities(6668,144,e.original_abilities(6668,144));self.assertFalse(e.abilities)
 
 
 if __name__ == '__main__': unittest.main()

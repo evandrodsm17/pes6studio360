@@ -688,3 +688,50 @@ At 0x468190 `lis`/`ori` are adjacent, followed by a call at 0x468198 to
 These are candidate resource tokens, not proven archive identifiers or
 competition IDs. The two callees' load/unload roles have not been traced.
 No competition-dependent routing or executable modification is implemented.
+
+## Ability value editing (0.17)
+
+The 152-byte player records contain a consecutive 26-byte region at offsets
+70–95. All 4415 records in CV 6667 and 4210 records in CV 6668 have values
+in 0–99 when extracting each byte's high seven bits. This includes reserved
+and unnamed records; the editor still forbids record zero. Each setter
+changes only mask 0xfe and preserves bit zero. No flag interpretation is
+assumed for that neighboring bit.
+
+At mapped PAL XEX RVA 0x681a28, word 0x894a0051 is `lbz r10,81(r10)`.
+At 0x681a30, word 0x554af87e is `rlwinm r10,r10,31,1,31` (right shift by
+one). The intervening 0x7d08f82e loads another register and does not overwrite
+r10. This supports that extraction for byte 81 in a native code path; it
+does not independently prove every label or execute the path in a match.
+The bounded source scan is recorded locally in
+`research/player_editor/ability_getter_hits.json`.
+
+The provisional labels follow the ordered 26 basic abilities in the primary
+PC editor reference [PeterC10/PESEditor Stats.java](https://github.com/PeterC10/PESEditor/blob/11f78f21687771d4dcb733454b7cce4821f5c70a/src/editor/Stats.java).
+The PC option-file layout is not imported as the console layout: it uses
+124-byte records and different bit positions. Only the field-order reference
+is compared; encoding is implemented from the observed console bytes. No
+third-party source code is copied into the Studio. The reference checkout
+is ignored under research and is not published with this repository.
+
+Static controls in CV 6668 include Lampard: byte 70 -> 84, byte 73 -> 97,
+byte 95 -> 50; Cech and Casillas have byte 95 -> 95 and 90. These are sanity
+checks, not runtime confirmation of attack, stamina or goalkeeper semantics.
+The UI explicitly presents the labels as provisional and requires loading
+values before editing. Physical fields, positions, appearance and special
+abilities remain untouched. No source player's attributes are mass-updated
+or converted between databases.
+
+Ability edits are an optional `abilities` list inside schema-1
+`player_database`, keyed by database and player ID. Legacy projects load
+with an empty ability map. Load validates abilities with all other project
+components before committing state. The isolated database probe explicitly
+passes an empty ability map, so it still excludes every pending user edit.
+
+57 tests passed. Tests cover mask preservation, exact byte scope, invalid
+values, project roundtrip, restoration and probe isolation with pending
+ability edits. The HTTP workflow stages abilities and a player name,
+saves/restores/reloads, then exports a real CV. Only entry 6668 changed;
+all other entries, offsets and neighboring flag bits were preserved.
+Local report: `research/player_editor/abilities_workflow.json`. Runtime
+attribute validation and automatic scoreboard selection remain outstanding.

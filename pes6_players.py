@@ -8,6 +8,11 @@ from pes6_fixed import EntryReplacement, entry_changes
 
 CV_SHA256 = 'c3c3f2aa3bd1623b650c9f356b9da85b9878feec0aceb89ab250a9abb5eb24dc'
 DATABASES = {6667: (4415, 188), 6668: (4210, 189)}
+ABILITY_LABELS = ('Ataque','Defesa','Equilíbrio','Resistência','Velocidade','Aceleração',
+    'Resposta','Agilidade','Precisão de drible','Velocidade de drible','Precisão de passe curto',
+    'Velocidade de passe curto','Precisão de passe longo','Velocidade de passe longo',
+    'Precisão de chute','Força de chute','Técnica de chute','Precisão de falta','Efeito',
+    'Cabeceio','Impulsão','Trabalho em equipe','Técnica','Agressividade','Mentalidade','Goleiro')
 
 
 def name_bytes(value, capacity, allow_empty=False):
@@ -23,7 +28,7 @@ def name_bytes(value, capacity, allow_empty=False):
 class PlayerEditor:
     def __init__(self, source):
         self.source = Path(source); self.entries = {}; self.payloads = {}; self.rows = {}
-        self.edits = {}; self.squads = {}
+        self.edits = {}; self.squads = {}; self.abilities = {}
         with self.source.open('rb') as f:
             if hashlib.file_digest(f, 'sha256').hexdigest() != CV_SHA256:
                 raise ValueError('Editor de jogadores exige cv.img PAL original verificado')
@@ -102,9 +107,28 @@ class PlayerEditor:
         self.build_entries(self.edits, candidate)
         self.squads = candidate
 
-    def build_entries(self, edits=None, squads=None):
+    def original_abilities(self, entry, pid):
+        self.validate_player(entry,pid,'Valid','')
+        raw=parts(self.payloads[entry])[0][3][pid*152+70:pid*152+96]
+        return [value>>1 for value in raw]
+
+    def validate_abilities(self,entry,pid,values):
+        self.original_abilities(entry,pid)
+        if not isinstance(values,list) or len(values)!=26 or any(type(v) is not int or not 0<=v<=99 for v in values):
+            raise ValueError('Informe exatamente 26 atributos inteiros entre 0 e 99')
+        return list(values)
+
+    def stage_abilities(self,entry,pid,values):
+        values=self.validate_abilities(entry,pid,values);candidate=dict(self.abilities)
+        if values==self.original_abilities(entry,pid):candidate.pop((entry,pid),None)
+        else:candidate[entry,pid]=values
+        self.build_entries(self.edits,self.squads,candidate)
+        self.abilities=candidate
+
+    def build_entries(self, edits=None, squads=None, abilities=None):
         edits = self.edits if edits is None else edits
         squads = self.squads if squads is None else squads
+        abilities = self.abilities if abilities is None else abilities
         changed = {}
         for (entry, pid), values in edits.items():
             values = self.validate_player(entry, pid, **values)
@@ -116,6 +140,10 @@ class PlayerEditor:
             data = changed.setdefault(entry, bytearray(self.payloads[entry])); ps = parts(data)
             struct.pack_into('>32H', data, ps[1][0]+slot*64, *(r['player_id'] for r in rows))
             data[ps[2][0]+slot*32:ps[2][0]+(slot+1)*32] = bytes(r['number'] for r in rows)
+        for (entry,pid),values in abilities.items():
+            values=self.validate_abilities(entry,pid,values)
+            data=changed.setdefault(entry,bytearray(self.payloads[entry]));offset=parts(data)[0][0]+pid*152+70
+            for i,value in enumerate(values):data[offset+i]=(data[offset+i]&1)|(value<<1)
         result = {}
         for entry, data in changed.items():
             original = self.entries[entry]; c, _ = struct.unpack_from('>II', original, 8)
@@ -130,7 +158,8 @@ class PlayerEditor:
     def project(self):
         return {'source_sha256': CV_SHA256,
                 'players': [{'database': e, 'player_id': p, **v} for (e, p), v in sorted(self.edits.items())],
-                'squads': [{'database': e, 'slot': s, 'rows': rows} for (e, s), rows in sorted(self.squads.items())]}
+                'squads': [{'database': e, 'slot': s, 'rows': rows} for (e, s), rows in sorted(self.squads.items())],
+                'abilities':[{'database':e,'player_id':pid,'values':v} for (e,pid),v in sorted(self.abilities.items())]}
 
     def probe(self):
         """Return an isolated diagnostic patch without touching pending edits."""
@@ -141,12 +170,12 @@ class PlayerEditor:
             values = {'name': f'Lampard DB{entry}', 'shirt_name': f'DB{entry}'}
             changes[entry, 144] = self.validate_player(entry, 144, **values)
             markers.append({'database': entry, 'player_id': 144, **values})
-        return self.build_entries(changes, {}), {'source_sha256': CV_SHA256, 'markers': markers,
+        return self.build_entries(changes, {}, {}), {'source_sha256': CV_SHA256, 'markers': markers,
             'isolated_test': True, 'runtime_verified': False,
             'instructions': 'Use os arquivos deste teste numa cópia do jogo. Confira Lampard no Chelsea/London FC e na Inglaterra em cada modo. DB6667 ou DB6668 identifica a origem do nome nessa tela; o resultado não comprova todos os modos. Se nenhum marcador aparecer, confira os arquivos usados e a influência do option file/save. Não apague seus saves.'}
 
     def validated_project(self, data):
-        d = data.get('player_database', {}); edits = {}; squads = {}
+        d = data.get('player_database', {}); edits = {}; squads = {}; abilities={}
         if not isinstance(d, dict): raise ValueError('Base de jogadores inválida')
         if d and d.get('source_sha256') != CV_SHA256: raise ValueError('Projeto vinculado a outro cv.img')
         for row in d.get('players', []):
@@ -157,17 +186,21 @@ class PlayerEditor:
             key = row['database'], row['slot']
             if key in squads: raise ValueError('Elenco repetido no projeto')
             squads[key] = self.validate_squad(*key, row['rows'])
-        self.build_entries(edits, squads)
-        return edits, squads
+        for row in d.get('abilities',[]):
+            key=row['database'],row['player_id']
+            if key in abilities:raise ValueError('Atributos repetidos no projeto')
+            abilities[key]=self.validate_abilities(*key,row['values'])
+        self.build_entries(edits, squads, abilities)
+        return edits, squads, abilities
 
     def state(self, entry, labels):
         if entry not in DATABASES: raise ValueError('Base inválida')
         result = []
         for row in self.rows[entry][1:]:
             pid = row['player_id']; result.append(dict(row, **{'name': self.edits.get((entry, pid), row)['name'],
-                'shirt_name': self.edits.get((entry, pid), row)['shirt_name'], 'modified': (entry, pid) in self.edits}))
+                'shirt_name': self.edits.get((entry, pid), row)['shirt_name'], 'modified': (entry, pid) in self.edits or (entry,pid) in self.abilities}))
         return {'database': entry, 'players': result,
                 'teams': [{'slot': slot, 'reference_name': labels[slot] if entry == 6668 and slot < len(labels) else '',
                            'modified': (entry, slot) in self.squads} for slot in range(DATABASES[entry][1])],
-                'pending': len(self.edits)+len(self.squads), 'runtime_verified': False,
+                'pending': len(self.edits)+len(self.squads)+len(self.abilities), 'runtime_verified': False,
                 'note': 'Bases independentes. Confirme o elenco pelos jogadores; os nomes de equipes são referências para a base 6668. A base ativa ainda exige teste no jogo. Nomes são compartilhados por todas as equipes que utilizam o mesmo ID nesta base. A ordem do elenco não define a formação tática.'}

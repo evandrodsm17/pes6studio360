@@ -100,7 +100,7 @@ sem vaga. As bases possuem IDs diferentes: as alterações não são copiadas
 automaticamente entre elas. Os registros existentes são editados sem
 aumentar a quantidade de jogadores.
 
-Atributos técnicos, físicos, aparência, posição e formação tática são
+Atributos físicos, aparência, posição e formação tática são
 preservados nesta etapa. A ordem das inscrições não é um editor de tática.
 Os testes verificam os arquivos gerados; confira a base realmente usada
 em partida e a influência do option file/save antes de atualizar em massa.
@@ -122,6 +122,22 @@ Esse botão não altera inscrições, atributos ou seu projeto atual, não inclu
 as alterações pendentes e não salva os marcadores no projeto. A saída contém
 `database_test.json` com os marcadores e instruções. Para voltar ao patch
 normal, use **Gerar patch**, sem reutilizar os arquivos do teste isolado.
+
+### Habilidades (v0.17, rótulos em validação)
+
+Selecione um jogador e abra **Atributos de jogo — rótulos em validação**.
+Clique em **Carregar atributos** para exibir 26 valores, de 0 a 99, com os
+originais ao lado. Edite os valores desejados e clique em **Preparar
+atributos** antes de salvar o projeto ou gerar o patch. **Restaurar
+atributos** remove as alterações desse jogador sem restaurar seus nomes.
+
+O bloco e a extração dos valores foram analisados nos binários; os rótulos
+foram comparados à ordem do formato PC e ainda precisam de conferência
+no Xbox 360. Faça primeiro uma alteração identificável e confira o mesmo
+jogador na tela de atributos do jogo antes de editar em massa. Os bits que
+compartilham cada byte com a habilidade são preservados. Idade, altura,
+aparência, pé preferido, posição e habilidades especiais não são editados
+por esses campos. As alterações continuam separadas por base.
 
 ### Placares e HUD (v0.14)
 
