@@ -74,6 +74,38 @@ tamanho no índice e preserva os offsets dos outros arquivos.
 
 ## Uniformes e demais recursos
 
+### Editor de uniformes (v0.18)
+
+Abra **Uniformes** no menu principal ou pelo editor de clubes. A tela reúne
+as entradas 5736–6145, cada uma com duas partes de 512 × 512 pixels.
+
+1. Selecione uma entrada. Os atalhos de Arsenal, Manchester United e Real
+   Madrid apontam para artes reconhecíveis nos arquivos originais; isso
+   não confirma seu uso em partida nem a função de cada parte.
+2. Baixe o PNG original de cada parte e edite externamente, mantendo a
+   disposição das peças no atlas e as dimensões de 512 × 512. A tela não
+   redimensiona o PNG para evitar deslocar o desenho sobre o modelo 3D.
+3. Selecione um PNG para uma ou para as duas partes e clique em **Preparar
+   PNGs selecionados**. A conversão e o espaço no AFS são verificados antes
+   de aplicar o conjunto; se uma parte falhar, nenhuma é preparada.
+4. Confira as duas prévias convertidas. **Restaurar parte** desfaz somente
+   aquela parte; **Restaurar as duas partes** desfaz o par.
+5. Salve o projeto e gere IMG ou ISO. Uniformes preparados pela galeria
+   também usam esse caminho de exportação quando pertencem à mesma faixa.
+6. Confira clube, variante e jogador de linha/goleiro no jogo. Só depois
+   salve o vínculo manual de equipe e função em cada parte.
+
+As partes não recebem automaticamente os nomes principal/reserva/goleiro.
+Um vínculo manual não redireciona o recurso carregado pelo jogo. Texturas
+iguais em outras entradas não são alteradas junto com a entrada escolhida.
+
+O editor pode usar o espaço vazio já reservado ao recurso no AFS, sem mover
+outras entradas. Se a imagem comprimida não couber, a importação é rejeitada.
+Apenas texturas são alteradas: modelo 3D, UV, cores de uniformes gerados e
+configurações de numeração não são modificados por essa tela. O projeto
+guarda os PNGs; os vínculos manuais permanecem no catálogo local, como na
+galeria. A saída inclui `kit_changes.json` para registrar o que foi alterado.
+
 ### Jogadores e elencos (v0.15)
 
 1. Abra **Jogadores e elencos** e escolha a base. Comece examinando a 6668,

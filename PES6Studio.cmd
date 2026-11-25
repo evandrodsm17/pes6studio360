@@ -15,7 +15,7 @@ if not exist "%PES6ISO%" (
   pause
   exit /b 1
 )
-"%PES6PY%" -c "import json,sys,urllib.request,webbrowser; from pathlib import Path; c=json.load(urllib.request.urlopen('http://127.0.0.1:8765/config',timeout=1)); assert c.get('version')=='0.17' and Path(c['iso']).resolve()==Path(sys.argv[1]).resolve(); webbrowser.open('http://127.0.0.1:8765')" "%PES6ISO%" >nul 2>nul
+"%PES6PY%" -c "import json,sys,urllib.request,webbrowser; from pathlib import Path; c=json.load(urllib.request.urlopen('http://127.0.0.1:8765/config',timeout=1)); assert c.get('version')=='0.18' and Path(c['iso']).resolve()==Path(sys.argv[1]).resolve(); webbrowser.open('http://127.0.0.1:8765')" "%PES6ISO%" >nul 2>nul
 if not errorlevel 1 exit /b 0
 "%PES6PY%" pes6_studio_v10.py cv_extraido_v03 rv_e_extraido --we00 cv_we00_texturas --iso "%PES6ISO%"
 if errorlevel 1 pause

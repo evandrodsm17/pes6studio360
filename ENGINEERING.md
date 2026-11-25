@@ -478,7 +478,8 @@ the AFS writer binds the original entry hash, checks non-overlap, limits
 growth to the existing gap before the next nonempty entry and verifies
 every newly consumed padding byte is zero. It updates the entry size in
 the AFS index without moving any other entry or changing the IMG/ISO size.
-All existing texture replacements retain their fixed-size behavior.
+Texture replacements outside dedicated controlled-growth editors retain
+their fixed-size behavior.
 
 Names are limited to 64 UTF-8 bytes by the editor and checked against actual
 archive capacity before staging. Both English label blocks are updated.
@@ -735,3 +736,87 @@ saves/restores/reloads, then exports a real CV. Only entry 6668 changed;
 all other entries, offsets and neighboring flag bits were preserved.
 Local report: `research/player_editor/abilities_workflow.json`. Runtime
 attribute validation and automatic scoreboard selection remain outstanding.
+
+## Kit editing workflow (0.18)
+
+`pes6_kits.py` reads original CV only after verifying its full known hash.
+It indexes the 410 source-catalog pairs in entries 5736–6145. Selecting an
+entry verifies its two actual WE00 parts, 512 × 512 indexed8 format, and
+decoded equality with each catalog PNG independently. Images are displayed
+from the binary source; modified previews use the same encoder as export.
+No team or role association is derived from the entry number or pixels.
+
+Uploads may contain one or both parts. Both are converted and the combined
+candidate entry is checked against existing AFS capacity before replacing
+shared texture edit state. Failure leaves every pending edit unchanged.
+Strict 512 × 512 input preserves the atlas geometry; it does not establish
+UV compatibility with externally created artwork. Palette conversion can
+change uploaded colors; the converted preview is the representation to check.
+
+Kit export reconstructs only selected parts in a fixed-length uncompressed
+payload, preserving WE00 headers and the part directory. ZLIB is recompressed
+and WESYS size fields updated; `EntryReplacement` binds the original entry
+hash and checks safe AFS allocation growth without moving other entries.
+This replaces the exact-compressed-size path for these identified kit
+resources, including edits staged from the generic gallery. Other texture
+replacements retain their existing behavior. A PNG that exceeds the checked
+allocation is rejected, rather than moving unknown archive content.
+
+`/kits` integrates original/converted previews, export of original PNGs,
+atomic pair import, independent/pair restoration, persistent manual links,
+existing project saving/loading and IMG/ISO export. Shared edit IDs mean
+the gallery and kit panel edit the same pending textures. Manual links are
+source-PNG-hash-bound in the existing team catalog, not rewritten into a game
+table or falsely recorded as runtime confirmation. `kit_changes.json` contains
+only changed kit entries, part edit flags, manual labels and source identity,
+with `runtime_verified: false`.
+
+Visual inspection of the original art identifies Arsenal crests/sponsorship
+in entries 5864/5865, Manchester United in 5884/5885, and Real Madrid in
+6042/6043. The UI provides visual-reference shortcuts, not automatic bindings.
+Repeated Chelsea Umbro/Samsung atlases elsewhere are not treated as ownership
+or shared-resource proof. In particular, crest-reference arithmetic selected
+different art from the actual club examples and is not used for kit mapping.
+Local review sheets: `research/kit_whole_catalog_contact.jpg` and
+`research/kit_anchor_hypotheses.jpg`.
+
+The real HTTP test imports both parts of 5865, rejects a bad second part
+without changing staged state, saves/restores/reloads, and exports a CV.
+Only entry 5865 changed, every AFS offset was preserved, part directories and
+WE00 headers matched, and each exported texture decoded to exactly the PNG
+served by the modified-preview endpoint. The diagnostic input is a pixel
+fixture, not a designed or game-validated uniform. Report:
+`research/kit_workflow/result.json`. The full 61-test suite passed, followed
+by two additional real/invalid-source kit-probe tests.
+
+### Native selection investigation
+
+A local copy of official Capstone 4.0.2 cstool was obtained from its GitHub
+release for read-only PPC64 big-endian window disassembly. Its download URL,
+archive SHA-256 and size are recorded in ignored
+`research/capstone_tool/download.json`; no tool binary is published or added
+as a Studio dependency. Instructions not supported by that older decoder
+must not be interpreted from skip-data output as executable statements.
+
+`pes6_kit_probe.py` verifies exact source words independently of Capstone.
+At mapped RVA 0x2fa188, `lwz r11,0xd4(r31)` reads an object field. At
+0x2fa198, `addi r29,r11,5736` adds the candidate kit-bank base; 0x2fa1a0
+moves r29 into r4 and the call at 0x2fa1a8 reaches 0x8219def8. This is a
+candidate request path, conditional on surrounding object state. The
+provenance of object +0xd4 and live team/variant selection remain untraced.
+No resource ID is calculated from a roster index or crest reference.
+
+Other numerical hits were narrowed: at 0x5c5834 the immediate 5736 completes
+the code pointer 0x825c1668, not an AFS entry. The 6145 occurrences at
+0xafe934/0xafed40 occur among validation status-code returns; they are not
+evidence of a last-kit selector. The source-bound probe records those
+exclusions and emits an empty automatic mapping list. Reproduce with:
+
+```powershell
+python pes6_kit_probe.py default.xex --out research/kit_workflow/native_loader.json
+python -m unittest test_kits
+```
+
+No executable licensing flag, profile color, kit model or selection code is
+patched. A first runtime test is still needed for the club, kit variant and
+each texture part before claiming a reliable team-level replacement.

@@ -18,11 +18,16 @@ Python. Projeto PatchPES6.
   e transferências entre elencos, com bases 6667/6668 independentes.
 - Edição de 26 valores de habilidades, preservando os bits vizinhos;
   os rótulos comparados ao formato PC ainda exigem conferência no Xbox 360.
+- Tela de uniformes com duas partes independentes por entrada, importação
+  conjunta com verificação de capacidade e prévia conferida na exportação.
 - Projetos salvos com vínculo às fontes; exportação de ISO ou arquivos
   modificados para uma instalação extraída.
 
 As fontes originais são preservadas. Os vínculos de uniformes são manuais;
 o programa não deduz equivalência de recursos por imagens iguais.
+O editor de uniformes não identifica automaticamente clube, principal,
+reserva ou goleiro. Vínculos manuais organizam o catálogo; não mudam o
+recurso escolhido pelo jogo. A validação em partida continua pendente.
 
 ## Requisitos e arquivos locais
 
