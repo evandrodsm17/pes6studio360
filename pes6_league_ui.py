@@ -1,0 +1,38 @@
+"""League/competition label and artwork workspace."""
+HTML='''<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PES6 Studio · Ligas e competições</title><style>
+*{box-sizing:border-box}body{background:#10151f;color:#e5edf7;margin:0;font:15px system-ui}header,footer{padding:22px;background:#192333}h1{color:#a5df72}a{color:#a5df72}main{padding:24px;max-width:1250px;margin:auto}
+button,select,input{font:inherit;padding:10px;background:#26354a;color:white;border:1px solid #455670;border-radius:6px}button{cursor:pointer}button:disabled{opacity:.4;cursor:default}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:15px 0}
+section{background:#1c2635;padding:20px;border-radius:10px;margin-bottom:20px}#logos{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;max-height:480px;overflow:auto}.logo{background:#10151f;padding:10px;border:2px solid transparent;border-radius:8px}.logo.selected{border-color:#a5df72}.logo img,.preview img{width:128px;height:128px;object-fit:contain;background:repeating-conic-gradient(#334155 0% 25%,#202a38 0% 50%) 50%/16px 16px}.logo button{padding:5px;font-size:13px}.preview{display:flex;gap:25px;flex-wrap:wrap}#status,#result{white-space:pre-wrap;overflow-wrap:anywhere}small{color:#a5b4c8}
+</style><header><a href="/">Galeria</a> · <a href="/clubs">Clubes</a><h1>Ligas e competições</h1><p>Edite os nomes do idioma inglês e escolha visualmente o emblema a substituir.</p></header><main>
+<section><label for="league">Liga ou competição</label><select id="league"></select><p id="original"></p>
+<div class="actions"><input id="name" aria-label="Nome da liga"><button id="nameSave" disabled>Preparar nome</button><button id="nameUndo" disabled>Restaurar nome</button></div><p id="limit"></p><small>A alteração aplica o texto nas duas tabelas de nomes identificadas. Não cria novas competições.</small></section>
+<section><h2>Emblema</h2><p>Escolha a imagem que você identificou como usada pela competição. Esta seleção organiza a edição; não muda qual imagem o jogo escolhe.</p><div id="logos"></div>
+<h3>Prévia da imagem selecionada</h3><div class="preview"><div>Original<br><img id="before" alt="Emblema original"></div><div>Após conversão<br><img id="after" alt="Emblema convertido"></div></div>
+<div class="actions"><input id="file" type="file" accept=".png,image/png" aria-label="Novo emblema"><select id="fit"><option value="contain">Manter proporção e transparência</option><option value="stretch">Preencher área</option></select><button id="logoSave" disabled>Importar emblema</button><button id="logoUndo" disabled>Restaurar imagem</button></div></section>
+<p id="status" role="status"></p><footer><strong id="pending"></strong><div class="actions"><button id="save">Salvar projeto</button><button id="load">Carregar projeto</button><select id="mode"><option value="iso">ISO para Xenia</option><option value="img">Arquivos extraídos (IMG/XEX)</option></select><button id="build" disabled>Gerar patch verificado</button></div><p id="result"></p><button id="folder" hidden>Abrir pasta do patch</button><small>Inclui também as alterações de clubes e texturas do mesmo projeto.</small></footer></main>
+<script>
+const $=id=>document.getElementById(id);let state,selected=null,busy=false,output=null;const bytes=s=>new TextEncoder().encode(s).length;
+function row(){return state?.records.find(r=>r.id===selected)}
+function controls(){const r=row();for(const id of ['nameSave','nameUndo','logoSave','logoUndo','save','load','build','folder','file','fit','league','name','mode'])$(id).disabled=busy||!state;
+const text=$('name').value.trim();$('nameSave').disabled=busy||!r||!text||bytes(text)>r.limit||text===r.name;$('nameUndo').disabled=busy||!r?.modified;
+for(const b of $('logos').querySelectorAll('button'))b.disabled=busy||!state;
+$('logoSave').disabled=busy||r?.logo_id==null||!$('file').files.length;$('logoUndo').disabled=busy||!r?.logo_modified;$('build').disabled=busy||!state?.pendingTotal;
+if(r)$('limit').textContent=bytes(text)+'/'+r.limit+' bytes disponíveis para este nome.'}
+async function request(url,body){const response=await fetch(url,body===undefined?{}:{method:'POST',body});let data;try{data=await response.json()}catch{throw Error('Resposta inválida do servidor')};if(!response.ok||data.error)throw Error(data.error||'Falha HTTP '+response.status);return data}
+async function refresh(){state=await request('/leagues/data');if(!state.records.some(r=>r.id===selected))selected=state.records[0]?.id??null;
+$('league').replaceChildren(...state.records.map(r=>new Option(r.name+(r.modified?' • alterado':''),String(r.id))));if(selected!==null)$('league').value=String(selected);render()}
+function render(){const r=row();$('name').value=r?.name||'';$('original').textContent=r?'Original: '+r.original_name+' · '+state.language:'';$('pending').textContent=state.pendingTotal+' alterações no projeto';$('logos').replaceChildren();
+for(const logo of state.logos){const box=document.createElement('div');box.className='logo'+(r?.logo===logo.resource?' selected':'');const im=document.createElement('img');im.src='/png?id='+logo.id;im.alt=logo.resource;
+const label=document.createElement('p');label.textContent=logo.resource;const b=document.createElement('button');b.textContent=r?.logo===logo.resource?'Selecionado':'Selecionar imagem';b.disabled=busy;b.onclick=()=>action('/leagues/link',JSON.stringify({resource:logo.resource}),'Imagem selecionada para edição.');box.append(im,label,b);$('logos').append(box)}
+for(const id of ['before','after']){if(r?.logo_id!=null)$(id).src=(id==='before'?'/png':'/edited')+'?id='+r.logo_id+'&full=1&v='+Date.now();else $(id).removeAttribute('src')}
+controls()}
+async function action(path,body,message){busy=true;controls();$('status').textContent='Processando...';try{const r=await request(path+(path.startsWith('/leagues/')?'?id='+selected:''),body);await refresh();$('status').textContent=message||r.message||'Concluído';return r}catch(e){$('status').textContent=e.message;return null}finally{busy=false;controls()}}
+$('league').onchange=()=>{selected=Number($('league').value);$('file').value='';$('status').textContent='';render()};$('name').oninput=$('file').onchange=controls;
+$('nameSave').onclick=()=>action('/leagues/name',JSON.stringify({name:$('name').value}),'Nome preparado nas duas tabelas. Salve o projeto e gere o patch.');
+$('nameUndo').onclick=()=>action('/leagues/nameUndo','','Nome original restaurado.');
+$('logoSave').onclick=async()=>{busy=true;controls();try{await request('/leagues/logo?id='+selected+'&fit='+$('fit').value,$('file').files[0]);await refresh();$('status').textContent='Emblema preparado. Confira a prévia, salve o projeto e gere o patch.'}catch(e){$('status').textContent=e.message}finally{busy=false;controls()}};
+$('logoUndo').onclick=()=>action('/leagues/logoUndo','','Imagem original restaurada.');$('save').onclick=()=>action('/save','');$('load').onclick=()=>{if(confirm('Substituir as alterações atuais pelo projeto salvo?'))action('/load','')};
+$('build').onclick=async()=>{output=null;$('folder').hidden=true;$('result').textContent='Gerando e verificando...';const result=await action('/build?mode='+$('mode').value,'');$('result').textContent=result?result.files.join(String.fromCharCode(10)):'Falha ao gerar. Confira a mensagem acima.';if(result){output=result.output_directory;$('folder').hidden=false}};
+$('folder').onclick=()=>action('/openOutput',JSON.stringify({directory:output}),'Pasta aberta.');refresh().catch(e=>{$('status').textContent=e.message;controls()});
+</script></html>'''

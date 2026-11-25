@@ -13,4 +13,3 @@
 # Historical entry points remain on disk; current UI uses v10 through the launcher.
 /pes6_studio.py
 /pes6_studio_v0[2-9].py
-
