@@ -74,6 +74,17 @@ tamanho no índice e preserva os offsets dos outros arquivos.
 
 ## Uniformes e demais recursos
 
+### Interface e navegação (v0.19)
+
+As telas compartilham a identidade PES6 Studio 360: fundo escuro, detalhes
+em verde e logo própria. Use a navegação lateral para alternar entre
+texturas, clubes, uniformes, competições, jogadores, placares e pesquisa.
+Em telas menores, o menu fica acima do conteúdo e permite rolagem horizontal.
+
+A galeria reúne os filtros em um painel e mantém as ações de projeto e
+geração do patch na barra inferior. O caminho completo da ISO fica no
+detalhe **Arquivo de origem**. A logo também é usada como ícone da aba.
+
 ### Editor de uniformes (v0.18)
 
 Abra **Uniformes** no menu principal ou pelo editor de clubes. A tela reúne

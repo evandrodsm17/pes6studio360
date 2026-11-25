@@ -6,6 +6,8 @@ Python. Projeto PatchPES6.
 
 ## Funcionalidades
 
+- Interface escura em tons de verde, logo própria e navegação compartilhada
+  entre todos os editores, com adaptação para telas menores.
 - Galeria DDS/WE00, categorias, prévias e importação de texturas externas.
 - Editor de escudos com conversão para as duas resoluções e verificação
   de capacidade antes de aplicar as alterações.
@@ -102,8 +104,8 @@ python -m unittest discover
 Os testes independentes dos dados rodam sem os arquivos do jogo. Testes com
 binários reais são ignorados quando as fontes locais não estão disponíveis.
 ISOs, IMG, XEX, texturas, projetos pessoais, saídas de patch, emuladores e
-pesquisa gerada estão excluídos pelo `.gitignore`. Apenas código e
-documentação do projeto são versionados.
+pesquisa gerada estão excluídos pelo `.gitignore`. Código, documentação e
+os arquivos de identidade visual do Studio são versionados.
 
 Na cópia de desenvolvimento original, este ambiente restringe escrita em
 `.git/`. Os metadados locais ficam separados em `research/versioning/` e

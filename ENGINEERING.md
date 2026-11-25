@@ -820,3 +820,38 @@ python -m unittest test_kits
 No executable licensing flag, profile color, kit model or selection code is
 patched. A first runtime test is still needed for the club, kit variant and
 each texture part before claiming a reliable team-level replacement.
+
+## Shared green console-inspired interface (0.19)
+
+`pes6_theme.py` adds the shared navigation shell, active-page indicator,
+brand, page headings, viewport metadata, favicon and stylesheet to all
+seven existing HTML editors. Existing editor DOM IDs and page scripts are
+retained. The gallery source path is folded into a details element; its
+filter controls and fixed build actions remain functional. Obsolete
+cross-page buttons are hidden in favor of the shared sidebar. Existing
+stray display control characters are normalized to separators/arrows.
+
+`assets/studio.css` supplies dark charcoal/forest surfaces, lime accents,
+focus outlines, primary actions, consistent panels, tables and image
+backgrounds. Responsive breakpoints change the sidebar to a horizontal
+menu and stack editor panels on smaller widths. Reduced-motion preferences
+disable transitions. The generated, original P6 orbital football logo is
+stored at `assets/pes6studio360-logo.png` with transparency and is reused
+as the favicon. These two asset paths are explicitly allowlisted both in
+Git and HTTP routing; arbitrary asset paths are not served. PNGs are marked
+binary in Git. The Studio gains no external fonts, CDN or browser runtime
+dependency.
+
+HTTP checks passed for all seven pages and both assets. Verification
+confirmed identical editor ID sets/counts before/after wrapping and exactly
+one active navigation item per page. All seven emitted JavaScript blocks
+passed Node syntax checks. Served CSS/PNG bytes matched their local files.
+The local report is `research/theme/verification.json`. This presentation
+change does not alter game-data parsers, patch state or binary export code.
+
+Screenshot verification was unavailable: the computer-use runtime failed
+on its workspace glob configuration, and isolated headless Chromium attempts
+failed with a GPU process error or timeout in this environment. Responsive
+rules are implemented, but rendered desktop/mobile screenshots were not
+obtained. An existing editor session with 24 staged changes was left running;
+no project load/save, edit mutation or server restart was performed on it.

@@ -9,6 +9,9 @@
 !/PES6Studio.cmd
 !/GitStudio.cmd
 !/requirements.txt
+!/assets/
+!/assets/studio.css
+!/assets/pes6studio360-logo.png
 
 # Historical entry points remain on disk; current UI uses v10 through the launcher.
 /pes6_studio.py
