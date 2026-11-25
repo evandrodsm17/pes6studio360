@@ -520,3 +520,78 @@ and accessed through `GitStudio.cmd`; a normal clone uses ordinary Git.
 No global safe-directory exception or TLS-verification bypass is installed.
 A local ignored CA bundle contains the existing trusted certificate roots
 for transport verification. Only source and documentation are published.
+
+## Scoreboard atlas editing (0.14)
+
+The verified English archive contains the named parts below. These are
+resource identities read from the part-name footer, not inferred from PC IDs.
+
+| Archive | Entry | Part | Name | Dimensions |
+| --- | ---: | ---: | --- | --- |
+| rv_e | 249 | 0 | game2d_00 | 256 × 256 |
+| rv_e | 249 | 1 | game2d_01 | 256 × 256 |
+| rv_e | 249 | 2 | game2d_number | 256 × 128 |
+| rv_e | 249 | 3 | replay | 256 × 128 |
+| rv_e | 253 | 0 | game2d_number | 256 × 128 |
+
+The two number parts are byte-identical and edited together. Parts 4 and 5
+of entry 249 contain controller and other HUD artwork and are preserved.
+The original atlas for game2d_00 visibly includes clock glyphs, stoppage-time
+labels, radar and strategy elements; it is not solely a scoreboard backdrop.
+
+`pes6_scoreboards.py` reads the original verified archive selected by the
+league editor. It does not use possibly modified extracted images. Strict
+PNG dimensions are required. Encoding preserves the WE00 header and fixed
+uncompressed part length. Recompression changes WESYS length fields and
+uses the existing checked AFS allocation policy. Part directories, offsets,
+other parts and named footers remain byte-identical after decompression.
+Staging checks archive capacity before accepting an edit. Optional schema-1
+`scoreboard_textures` stores source-hash-bound encoded parts. All project
+components are validated before replacing active edits. Export reports
+`automatic_selection: false` and `runtime_verified: false` explicitly.
+
+The real HTTP workflow combined HUD/numbers and a league-name change,
+saved/restored/reloaded the project and exported a rebuilt `rv_e.img`.
+Only entries 242, 249, 253 and 254 changed, every entry offset remained
+unchanged, and the two number copies remained identical. The test uses
+diagnostic pixels, not a designed or runtime-validated scoreboard.
+Local report: `research/scoreboards/workflow.json`. Suite: 48 tests passed.
+
+### Automatic competition selection: investigation, not implementation
+
+Named layout parts in original `cv.img` entry 2703 are `scoretime` (part 0),
+`game2d` (part 1), and `replay` (part 2). They are binary layouts rather than
+WE00 images and are not modified by this editor.
+
+In the reconstructed PAL executable, big-endian PPC `lis`/`addi` pairs
+construct the following string addresses. Offsets are mapped-image RVAs;
+runtime addresses are RVA + 0x82000000. The narrow scan does not establish
+function boundaries, control flow, a loading hook or competition selection.
+
+| String RVA | String | lis RVA | addi RVA |
+| --- | --- | --- | --- |
+| 0x000c8384 | game2d_number | 0x00465b84 | 0x00465b8c |
+| 0x000c8384 | game2d_number | 0x004682bc | 0x004682c0 |
+| 0x000c83f8 | scoretime | 0x00468088 | 0x0046808c |
+| 0x000c83f8 | scoretime | 0x0046829c | 0x004682a0 |
+| 0x000c8404 | game2d | 0x00468428 | 0x0046842c |
+| 0x000c8410 | replay | 0x0046847c | 0x00468480 |
+| 0x000c8410 | replay | 0x00472b1c | 0x00472b24 |
+
+Source XEX SHA-256:
+`b76db0fc2f86794f4e99bb4d93dd8148d31a00b518cb1e5c822ef0bc75ac1087`.
+Local raw evidence: `research/scoreboards/named_parts.json` and `xrefs.json`.
+
+Primary PC reference: [Pato_Lucas18's Scoreboard Server documentation](https://foro.pesretro.net/thread-12937-post-489077.html).
+It describes a Kitserver DLL that selects folders through a competition map
+and replaces resources at runtime. Its x86 hooks, memory addresses and IDs
+cannot be assumed to apply to the Xbox 360 PPC executable. League text IDs
+105–110 are not established as runtime competition IDs.
+
+To implement an actual selector, trace the layout/resource loading calls,
+identify the live match competition state with contrasting exhibition,
+league and cup sessions, then establish resource selection/injection and
+lifetime behavior. Only after those bindings are confirmed should the
+Studio expose competition mappings. No placeholder mapping is exported as
+if the original game could consume it. Automatic selection and layout
+editing remain unimplemented; no claim of runtime success is made.

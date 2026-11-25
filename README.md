@@ -12,6 +12,8 @@ Python. Projeto PatchPES6.
 - Edição de nomes e siglas de equipes, limitada ao espaço original de texto.
 - Editor de nomes de ligas/competições no idioma inglês e seleção manual
   do emblema de competição a editar.
+- Tela de placares e HUD: exportação/importação dos atlas PNG, prévia
+  convertida e atualização conjunta das duas cópias dos números.
 - Projetos salvos com vínculo às fontes; exportação de ISO ou arquivos
   modificados para uma instalação extraída.
 
@@ -69,6 +71,12 @@ criados externamente e vinculados somente depois de conferência.
 Nomes de clubes modificam o XEX, que é reconstruído e verificado, mas não
 é re-assinado. Compatibilidade com console físico não foi validada.
 Veja [ENGINEERING.md](ENGINEERING.md) para formatos, fontes e comandos.
+
+Os placares usam um conjunto global de texturas. A troca automática por
+competição ainda exige identificar o estado da competição e implementar
+a seleção no executável Xbox 360; o módulo Kitserver de PC não funciona
+diretamente nessa plataforma. Os layouts e posições do HUD não são editados
+nesta versão. Alterações de placar ainda precisam de validação em partida.
 
 ## Testes e versionamento
 

@@ -74,6 +74,25 @@ tamanho no índice e preserva os offsets dos outros arquivos.
 
 ## Uniformes e demais recursos
 
+### Placares e HUD (v0.14)
+
+1. Abra **Placares e HUD** no menu principal.
+2. Selecione HUD, placas auxiliares, números ou replay e baixe o PNG original.
+3. Edite o PNG externamente, mantendo as dimensões, posições e transparência
+   dos elementos. Cada imagem é um atlas com vários recortes usados pelo jogo.
+4. Importe o PNG e confira a prévia convertida para a paleta do jogo.
+5. Use **Salvar projeto** e **Gerar patch**. A saída inclui o `rv_e.img`
+   modificado, ou uma ISO nova, conforme o modo escolhido.
+
+Os números são atualizados nas duas cópias identificadas, nas entradas
+249 e 253. As alterações de placar podem ser combinadas com nomes de ligas,
+clubes e outros recursos. Se a galeria também modificar a mesma entrada
+do placar, o Studio informa o conflito em vez de sobrescrever uma alteração.
+
+Esta versão prepara um único conjunto global. A troca automática conforme
+a competição e a edição das coordenadas do placar ainda não estão disponíveis.
+Confira o resultado numa partida antes de considerar o placar validado.
+
 Use a galeria para importar artes externas, conferir a prévia, categorizar
 recursos e salvar vínculos manuais de equipe/tipo já conferidos. Não há
 associação automática de uniformes por ordem de elenco ou por pixels iguais.

@@ -88,7 +88,7 @@ main{display:grid;grid-template-columns:300px 1fr;gap:24px;padding:24px 28px}asi
 .previews{display:flex;gap:18px;flex-wrap:wrap}.card{background:#10151f;padding:14px;border-radius:8px;min-width:180px}.card img{width:128px;height:128px;object-fit:contain;background:repeating-conic-gradient(#334155 0% 25%,#202a38 0% 50%) 50%/16px 16px}
 .pair{display:flex;gap:18px}.pair p{font-size:13px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}small{color:#a5b4c8}#status{white-space:pre-wrap;overflow-wrap:anywhere}#result a{display:block}code{overflow-wrap:anywhere}
 footer{padding:18px;background:#192333;border-radius:8px;margin-top:22px}@media(max-width:850px){main{grid-template-columns:1fr}#clubList{height:200px}}
-</style><header><a href="/">Galeria de texturas</a><h1>Clubes, nomes e escudos</h1><small>Importe um PNG para preparar as duas resoluções. Confira o resultado convertido antes de gerar o patch.</small></header>
+</style><header><a href="/scoreboards">Placares e HUD</a> · <a href="/">Galeria de texturas</a><h1>Clubes, nomes e escudos</h1><small>Importe um PNG para preparar as duas resoluções. Confira o resultado convertido antes de gerar o patch.</small></header>
 <main><aside><label for="search">Buscar equipe</label><input id="search" placeholder="Nome, sigla ou referência">
 <select id="clubList" size="20" aria-label="Equipe"></select><p id="clubCount"></p></aside>
 <section><h2 id="title">Carregando equipes...</h2><p id="evidence"></p><p id="availability"></p><div class="previews" id="previews"></div>

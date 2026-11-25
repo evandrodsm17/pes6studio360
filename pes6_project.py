@@ -4,11 +4,12 @@ from pathlib import Path
 def key(p):
     if p.suffix.lower()=='.png':return 'WE00/'+p.parent.name+'/'+p.name
     return '/'.join((p.parent.parent.name,p.parent.name,p.name))
-def save(file,iso,paths,edits,tags,club_names=None,name_source_sha256=None,league_names=None,league_logo_links=None,league_source_sha256=None):
+def save(file,iso,paths,edits,tags,club_names=None,name_source_sha256=None,league_names=None,league_logo_links=None,league_source_sha256=None,scoreboard_textures=None):
     file=Path(file);file.parent.mkdir(parents=True,exist_ok=True)
     data={'version':1,'iso':str(iso),'iso_size':iso.stat().st_size,'edits':{key(paths[i]):{'sha256':hashlib.sha256(paths[i].read_bytes()).hexdigest(),'dds':base64.b64encode(d).decode('ascii')} for i,d in edits.items()},'tags':{key(paths[i]):t for i,t in tags.items()}}
     if club_names is not None:data.update(club_names=club_names,name_source_sha256=name_source_sha256)
     if league_names is not None:data.update(league_names=league_names,league_logo_links=league_logo_links or {},league_source_sha256=league_source_sha256)
+    if scoreboard_textures is not None:data['scoreboard_textures']=scoreboard_textures
     fd,tmp=tempfile.mkstemp(dir=file.parent,prefix='.pes6-')
     try:
         with os.fdopen(fd,'w',encoding='utf-8') as f:json.dump(data,f,ensure_ascii=False)
